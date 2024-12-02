@@ -1,8 +1,10 @@
-import { relations, sql } from "drizzle-orm";
-import { pgTable, primaryKey } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
+import { relations, sql } from "drizzle-orm"; // Mengimpor sql untuk query custom & relasi antar tabel
+import { pgTable, primaryKey } from "drizzle-orm/pg-core"; // Mengimpor pgTable dan primaryKey dari drizzle-orm
+
+import { createInsertSchema } from "drizzle-zod"; // Mengimpor schema insert dari drizzle-zod
 import { z } from "zod";
 
+// Tabel Post
 export const Post = pgTable("post", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   title: t.varchar({ length: 256 }).notNull(),
@@ -10,9 +12,10 @@ export const Post = pgTable("post", (t) => ({
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
     .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => sql`now()`),
+    .$onUpdateFn(() => sql`now()`), // Update otomatis setiap kali ada perubahan
 }));
 
+// Schema untuk Insert Post menggunakan Zod untuk validasi
 export const CreatePostSchema = createInsertSchema(Post, {
   title: z.string().max(256),
   content: z.string().max(256),
@@ -22,6 +25,7 @@ export const CreatePostSchema = createInsertSchema(Post, {
   updatedAt: true,
 });
 
+// Tabel User
 export const User = pgTable("user", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   name: t.varchar({ length: 255 }),
@@ -30,17 +34,19 @@ export const User = pgTable("user", (t) => ({
   image: t.varchar({ length: 255 }),
 }));
 
+// Relasi antara User dan Account
 export const UserRelations = relations(User, ({ many }) => ({
   accounts: many(Account),
 }));
 
+// Tabel Account
 export const Account = pgTable(
   "account",
   (t) => ({
     userId: t
       .uuid()
       .notNull()
-      .references(() => User.id, { onDelete: "cascade" }),
+      .references(() => User.id, { onDelete: "cascade" }), // Menghubungkan ke tabel User
     type: t
       .varchar({ length: 255 })
       .$type<"email" | "oauth" | "oidc" | "webauthn">()
@@ -62,19 +68,22 @@ export const Account = pgTable(
   }),
 );
 
+// Relasi antara Account dan User
 export const AccountRelations = relations(Account, ({ one }) => ({
   user: one(User, { fields: [Account.userId], references: [User.id] }),
 }));
 
+// Tabel Session
 export const Session = pgTable("session", (t) => ({
   sessionToken: t.varchar({ length: 255 }).notNull().primaryKey(),
   userId: t
     .uuid()
     .notNull()
-    .references(() => User.id, { onDelete: "cascade" }),
+    .references(() => User.id, { onDelete: "cascade" }), // Menghubungkan ke tabel User
   expires: t.timestamp({ mode: "date", withTimezone: true }).notNull(),
 }));
 
+// Relasi antara Session dan User
 export const SessionRelations = relations(Session, ({ one }) => ({
   user: one(User, { fields: [Session.userId], references: [User.id] }),
 }));

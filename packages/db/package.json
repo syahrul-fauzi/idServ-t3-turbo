@@ -33,12 +33,14 @@
     "@vercel/postgres": "^0.10.0",
     "drizzle-orm": "^0.36.4",
     "drizzle-zod": "^0.5.1",
+    "pg": "^8.13.1",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@idserv/eslint-config": "workspace:*",
     "@idserv/prettier-config": "workspace:*",
     "@idserv/tsconfig": "workspace:*",
+    "@types/pg": "^8.11.10",
     "dotenv-cli": "^7.4.4",
     "drizzle-kit": "^0.28.1",
     "eslint": "catalog:",

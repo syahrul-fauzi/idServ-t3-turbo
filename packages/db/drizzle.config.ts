@@ -1,5 +1,10 @@
 import type { Config } from "drizzle-kit";
 
+import * as dotenv from "dotenv";
+
+// Memuat .env dari root monorepo
+dotenv.config({ path: "../../.env" });
+
 if (!process.env.POSTGRES_URL) {
   throw new Error("Missing POSTGRES_URL");
 }
